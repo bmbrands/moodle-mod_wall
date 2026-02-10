@@ -1,0 +1,104 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template mod_wall/comment_reply_item
+
+    A single reply comment (level 2) in the thread.
+    Replies are always flat - no further nesting.
+    Shows @mention prefix for the user being replied to.
+
+    Context variables required:
+    * id - Comment ID
+    * fullname - Author full name
+    * mention - @mention prefix
+    * timeago - Time ago string
+    * content - Comment HTML content
+    * candelete - Whether the user can delete this comment
+    * wallid - Wall instance ID
+    * cancomment - Whether the user can reply
+    * showreplyform - Whether to show the inline reply form
+    * enablevoting - Whether voting is enabled
+    * upvotes - Total upvotes
+    * downvotes - Total downvotes
+    * score - Net score
+    * userupvoted - Whether user upvoted
+    * userdownvoted - Whether user downvoted
+
+    Example context (json):
+    {
+        "id": 5,
+        "fullname": "Jane Smith",
+        "mention": "@John Doe",
+        "timeago": "2 mins",
+        "content": "<p>This is a reply.</p>",
+        "candelete": false,
+        "wallid": 1,
+        "cancomment": true,
+        "showreplyform": false,
+        "enablevoting": true,
+        "upvotes": 1,
+        "downvotes": 0,
+        "score": 1,
+        "userupvoted": true,
+        "userdownvoted": false
+    }
+}}
+<div class="mod-wall-comment mb-2 ml-4" data-region="comment-item" data-commentid="{{id}}">
+    <div class="d-flex">
+        {{#enablevoting}}
+        <div class="mod-wall-vote-col d-flex flex-column align-items-center mr-2" style="min-width: 32px;">
+            <button class="btn btn-sm btn-link p-0 {{#userupvoted}}text-primary{{/userupvoted}}{{^userupvoted}}text-muted{{/userupvoted}}"
+                    data-action="vote-comment" data-commentid="{{id}}" data-vote="1"
+                    title="{{#str}}upvote, mod_wall{{/str}}">
+                <i class="fa fa-arrow-up"></i>
+            </button>
+            <span class="small font-weight-bold {{#userupvoted}}text-primary{{/userupvoted}}{{#userdownvoted}}text-danger{{/userdownvoted}}"
+                  data-region="vote-score" data-commentid="{{id}}">{{score}}</span>
+            <button class="btn btn-sm btn-link p-0 {{#userdownvoted}}text-danger{{/userdownvoted}}{{^userdownvoted}}text-muted{{/userdownvoted}}"
+                    data-action="vote-comment" data-commentid="{{id}}" data-vote="-1"
+                    title="{{#str}}downvote, mod_wall{{/str}}">
+                <i class="fa fa-arrow-down"></i>
+            </button>
+        </div>
+        {{/enablevoting}}
+        <div class="flex-grow-1">
+            <div class="d-flex align-items-center mb-1">
+                <strong class="mr-2">{{fullname}}</strong>
+                <small class="text-muted">{{timeago}}</small>
+                {{#candelete}}
+                <button class="btn btn-sm btn-link text-danger ml-2 p-0"
+                        data-action="delete-comment" data-commentid="{{id}}" data-wallid="{{wallid}}">
+                    <i class="fa fa-times"></i>
+                </button>
+                {{/candelete}}
+            </div>
+            <div class="comment-content">
+                {{#mention}}<span class="text-primary font-weight-bold">{{mention}}</span> {{/mention}}{{{content}}}
+            </div>
+            {{#cancomment}}
+            <button class="btn btn-sm btn-link p-0 mt-1" data-action="reply-comment"
+                    data-commentid="{{id}}" data-wallid="{{wallid}}" data-fullname="{{fullname}}">
+                {{#str}}reply, mod_wall{{/str}}
+            </button>
+            {{/cancomment}}
+
+            {{#showreplyform}}
+            {{> mod_wall/comment_reply_form}}
+            {{/showreplyform}}
+        </div>
+    </div>
+</div>
