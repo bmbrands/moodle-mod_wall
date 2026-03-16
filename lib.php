@@ -62,6 +62,20 @@ function wall_add_instance($moduleinstance, $form = null) {
     $moduleinstance->timemodified = time();
 
     $id = $DB->insert_record('wall', $moduleinstance);
+
+    // Save media file.
+    $context = context_module::instance($moduleinstance->coursemodule);
+    if (isset($moduleinstance->media)) {
+        file_save_draft_area_files(
+            $moduleinstance->media,
+            $context->id,
+            'mod_wall',
+            'media',
+            0,
+            ['subdirs' => 0, 'maxfiles' => 1]
+        );
+    }
+
     $completiontimeexpected = !empty($moduleinstance->completionexpected) ? $moduleinstance->completionexpected : null;
     \core_completion\api::update_completion_date_event(
         $moduleinstance->coursemodule,
@@ -89,6 +103,19 @@ function wall_update_instance($moduleinstance, $form = null) {
     $moduleinstance->id = $moduleinstance->instance;
 
     $DB->update_record('wall', $moduleinstance);
+
+    // Save media file.
+    $context = context_module::instance($moduleinstance->coursemodule);
+    if (isset($moduleinstance->media)) {
+        file_save_draft_area_files(
+            $moduleinstance->media,
+            $context->id,
+            'mod_wall',
+            'media',
+            0,
+            ['subdirs' => 0, 'maxfiles' => 1]
+        );
+    }
 
     $completiontimeexpected = !empty($moduleinstance->completionexpected) ? $moduleinstance->completionexpected : null;
     \core_completion\api::update_completion_date_event(
@@ -174,6 +201,15 @@ function wall_cm_info_view(cm_info $cm) {
         'commentcount' => $stats->commentcount,
     ];
 
+    // Add media if available.
+    $media = wall_get_media_url($context->id);
+    if ($media) {
+        $templatecontext['mediaurl'] = $media['url'];
+        $templatecontext['mediaimage'] = $media['isimage'];
+        $templatecontext['mediavideo'] = $media['isvideo'];
+        $templatecontext['hasmedia'] = true;
+    }
+
     // Initialize JS module with full config.
     $PAGE->requires->js_call_amd('mod_wall/wall', 'init', [
         $cm->id, $conf->id, $cancomment, $enablevoting, true,
@@ -227,4 +263,71 @@ function wall_get_instance_vote_data(int $wallid): array {
 function mod_wall_check_updates_since(cm_info $cm, $from, $filter = []) {
     $updates = course_check_module_updates_since($cm, $from, ['content'], $filter);
     return $updates;
+}
+
+/**
+ * Serve the files from the mod_wall file areas.
+ *
+ * @param stdClass $course the course object
+ * @param stdClass $cm the course module object
+ * @param stdClass $context the context
+ * @param string $filearea the name of the file area
+ * @param array $args extra arguments (itemid, path)
+ * @param bool $forcedownload whether or not force download
+ * @param array $options additional options affecting the file serving
+ * @return bool false if the file not found, just send the file otherwise and do not return anything
+ */
+function wall_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, array $options = []) {
+    if ($context->contextlevel != CONTEXT_MODULE) {
+        return false;
+    }
+
+    require_login($course, true, $cm);
+
+    if ($filearea !== 'media') {
+        return false;
+    }
+
+    $itemid = array_shift($args);
+    $filename = array_pop($args);
+    $filepath = $args ? '/' . implode('/', $args) . '/' : '/';
+
+    $fs = get_file_storage();
+    $file = $fs->get_file($context->id, 'mod_wall', $filearea, $itemid, $filepath, $filename);
+    if (!$file) {
+        return false;
+    }
+
+    send_stored_file($file, null, 0, $forcedownload, $options);
+}
+
+/**
+ * Get the media URL for a wall instance.
+ *
+ * @param int $contextid The context ID.
+ * @return array|null Array with 'url' and 'isimage'/'isvideo' keys, or null.
+ */
+function wall_get_media_url(int $contextid): ?array {
+    $fs = get_file_storage();
+    $files = $fs->get_area_files($contextid, 'mod_wall', 'media', 0, 'sortorder', false);
+    $file = reset($files);
+    if (!$file) {
+        return null;
+    }
+
+    $url = moodle_url::make_pluginfile_url(
+        $file->get_contextid(),
+        $file->get_component(),
+        $file->get_filearea(),
+        $file->get_itemid(),
+        $file->get_filepath(),
+        $file->get_filename()
+    );
+
+    $mimetype = $file->get_mimetype();
+    return [
+        'url' => $url->out(false),
+        'isimage' => (strpos($mimetype, 'image/') === 0),
+        'isvideo' => (strpos($mimetype, 'video/') === 0),
+    ];
 }

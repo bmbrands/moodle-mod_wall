@@ -77,6 +77,15 @@ $templatecontext = [
     'commentcount' => count($commentlist),
 ];
 
+// Add media if available.
+$media = wall_get_media_url($context->id);
+if ($media) {
+    $templatecontext['mediaurl'] = $media['url'];
+    $templatecontext['mediaimage'] = $media['isimage'];
+    $templatecontext['mediavideo'] = $media['isvideo'];
+    $templatecontext['hasmedia'] = true;
+}
+
 // Initialize JS module.
 $PAGE->requires->js_call_amd('mod_wall/wall', 'init', [
     $cm->id, $moduleinstance->id, $cancomment, $enablevoting, false,

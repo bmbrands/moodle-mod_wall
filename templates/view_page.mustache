@@ -27,6 +27,10 @@
     * hascomments - Whether there are comments
     * commentcount - Number of comments
     * enablevoting - Whether voting is enabled
+    * hasmedia - Whether the wall has a media file
+    * mediaurl - URL to the media file
+    * mediaimage - Whether the media is an image
+    * mediavideo - Whether the media is a video
 
     Example context (json):
     {
@@ -36,10 +40,25 @@
         "comments": [],
         "hascomments": false,
         "commentcount": 0,
-        "enablevoting": true
+        "enablevoting": true,
+        "hasmedia": true,
+        "mediaurl": "/pluginfile.php/123/mod_wall/media/0/photo.jpg",
+        "mediaimage": true,
+        "mediavideo": false
     }
 }}
 <div id="mod-wall-view" data-region="wall-view" data-cmid="{{cmid}}" data-wallid="{{wallid}}">
+    {{#hasmedia}}
+    <div class="mod-wall-media mb-3">
+        {{#mediaimage}}
+        <img src="{{mediaurl}}" alt="" class="img-fluid rounded">
+        {{/mediaimage}}
+        {{#mediavideo}}
+        <video src="{{mediaurl}}" controls class="w-100 rounded">
+        </video>
+        {{/mediavideo}}
+    </div>
+    {{/hasmedia}}
     <div data-region="comment-thread" data-wallid="{{wallid}}">
         {{#cancomment}}
         {{> mod_wall/comment_form}}

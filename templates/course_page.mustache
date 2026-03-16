@@ -31,6 +31,10 @@
     * walluserupvoted - Whether the user upvoted the wall
     * walluserdownvoted - Whether the user downvoted the wall
     * commentcount - Total number of comments
+    * hasmedia - Whether the wall has a media file
+    * mediaurl - URL to the media file
+    * mediaimage - Whether the media is an image
+    * mediavideo - Whether the media is a video
 
     Example context (json):
     {
@@ -41,19 +45,34 @@
         "walluservote": 1,
         "walluserupvoted": true,
         "walluserdownvoted": false,
-        "commentcount": 12
+        "commentcount": 12,
+        "hasmedia": true,
+        "mediaurl": "/pluginfile.php/123/mod_wall/media/0/photo.jpg",
+        "mediaimage": true,
+        "mediavideo": false
     }
 }}
 <div class="mod-wall-coursepage" data-region="wall-view" data-cmid="{{cmid}}" data-wallid="{{wallid}}">
+    {{#hasmedia}}
+    <div class="mod-wall-media mb-2">
+        {{#mediaimage}}
+        <img src="{{mediaurl}}" alt="" class="img-fluid rounded">
+        {{/mediaimage}}
+        {{#mediavideo}}
+        <video src="{{mediaurl}}" controls class="w-100 rounded">
+        </video>
+        {{/mediavideo}}
+    </div>
+    {{/hasmedia}}
     <div class="d-flex align-items-center py-1">
         {{#enablevoting}}
-        <div class="d-flex align-items-center mr-3" data-region="wall-vote-bar">
+        <div class="d-flex align-items-center me-3" data-region="wall-vote-bar">
             <button class="btn btn-sm btn-link p-0 {{#walluserupvoted}}text-primary{{/walluserupvoted}}{{^walluserupvoted}}text-muted{{/walluserupvoted}}"
                     data-action="vote-wall" data-vote="1"
                     title="{{#str}}upvote, mod_wall{{/str}}">
                 <i class="fa fa-arrow-up"></i>
             </button>
-            <span class="small font-weight-bold mx-1 {{#walluserupvoted}}text-primary{{/walluserupvoted}}{{#walluserdownvoted}}text-danger{{/walluserdownvoted}}"
+            <span class="small fw-bold mx-1 {{#walluserupvoted}}text-primary{{/walluserupvoted}}{{#walluserdownvoted}}text-danger{{/walluserdownvoted}}"
                   data-region="wall-score">{{wallscore}}</span>
             <button class="btn btn-sm btn-link p-0 {{#walluserdownvoted}}text-danger{{/walluserdownvoted}}{{^walluserdownvoted}}text-muted{{/walluserdownvoted}}"
                     data-action="vote-wall" data-vote="-1"
@@ -63,7 +82,7 @@
         </div>
         {{/enablevoting}}
         <a href="#" data-action="toggle-wall" class="d-flex align-items-center text-decoration-none text-body">
-            <i class="fa fa-comment-o mr-1"></i>
+            <i class="fa fa-comment-o me-1"></i>
             <span class="small"><span data-region="wall-commentcount">{{commentcount}}</span> {{#str}}comments, mod_wall{{/str}}</span>
         </a>
     </div>

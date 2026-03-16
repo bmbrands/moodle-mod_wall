@@ -65,16 +65,16 @@
         "istoplevel": true
     }
 }}
-<div class="mod-wall-comment mb-3 {{^istoplevel}}ml-4{{/istoplevel}}" data-region="comment-item" data-commentid="{{id}}">
+<div class="mod-wall-comment mb-3 {{^istoplevel}}ms-4{{/istoplevel}}" data-region="comment-item" data-commentid="{{id}}">
     <div class="d-flex">
         {{#enablevoting}}
-        <div class="mod-wall-vote-col d-flex flex-column align-items-center mr-2" style="min-width: 32px;">
+        <div class="mod-wall-vote-col d-flex flex-column align-items-center me-2" style="min-width: 32px;">
             <button class="btn btn-sm btn-link p-0 {{#userupvoted}}text-primary{{/userupvoted}}{{^userupvoted}}text-muted{{/userupvoted}}"
                     data-action="vote-comment" data-commentid="{{id}}" data-vote="1"
                     title="{{#str}}upvote, mod_wall{{/str}}">
                 <i class="fa fa-arrow-up"></i>
             </button>
-            <span class="small font-weight-bold {{#userupvoted}}text-primary{{/userupvoted}}{{#userdownvoted}}text-danger{{/userdownvoted}}"
+            <span class="small ight-bold {{#userupvoted}}text-primary{{/userupvoted}}{{#userdownvoted}}text-danger{{/userdownvoted}}"
                   data-region="vote-score" data-commentid="{{id}}">{{score}}</span>
             <button class="btn btn-sm btn-link p-0 {{#userdownvoted}}text-danger{{/userdownvoted}}{{^userdownvoted}}text-muted{{/userdownvoted}}"
                     data-action="vote-comment" data-commentid="{{id}}" data-vote="-1"
@@ -85,17 +85,17 @@
         {{/enablevoting}}
         <div class="flex-grow-1">
             <div class="d-flex align-items-center mb-1">
-                <strong class="mr-2">{{fullname}}</strong>
+                <strong class="me-2">{{fullname}}</strong>
                 <small class="text-muted">{{timeago}}</small>
                 {{#candelete}}
-                <button class="btn btn-sm btn-link text-danger ml-2 p-0"
+                <button class="btn btn-sm btn-link text-danger ms-2 p-0"
                         data-action="delete-comment" data-commentid="{{id}}" data-wallid="{{wallid}}">
                     <i class="fa fa-times"></i>
                 </button>
                 {{/candelete}}
             </div>
             <div class="comment-content">
-                {{#mention}}<span class="text-primary font-weight-bold">{{mention}}</span> {{/mention}}{{{content}}}
+                {{#mention}}<span class="text-primary fw-bold">{{mention}}</span> {{/mention}}{{{content}}}
             </div>
             {{#cancomment}}
             <button class="btn btn-sm btn-link p-0 mt-1" data-action="reply-comment"

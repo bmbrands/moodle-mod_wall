@@ -34,6 +34,27 @@ class mod_wall_mod_form extends moodleform_mod {
 
         $mform = $this->_form;
 
+        // Prepare the media file manager.
+        $mediaoptions = [
+            'subdirs' => 0,
+            'maxbytes' => 0,
+            'maxfiles' => 1,
+            'accepted_types' => ['image', 'video'],
+        ];
+        $context = $this->context;
+        if ($context && $context->contextlevel === CONTEXT_MODULE) {
+            $draftitemid = file_get_submitted_draft_itemid('media');
+            file_prepare_draft_area(
+                $draftitemid,
+                $context->id,
+                'mod_wall',
+                'media',
+                0,
+                $mediaoptions
+            );
+            $mform->setDefault('media', $draftitemid);
+        }
+
         // General fieldset.
         $mform->addElement('header', 'general', get_string('general', 'form'));
 
@@ -46,6 +67,20 @@ class mod_wall_mod_form extends moodleform_mod {
             // Description element that is usually added to the General fieldset.
             $this->standard_intro_elements();
         }
+
+        $mform->addElement(
+            'filemanager',
+            'media',
+            get_string('media', 'mod_wall'),
+            null,
+            [
+                'subdirs' => 0,
+                'maxbytes' => 0,
+                'maxfiles' => 1,
+                'accepted_types' => ['image', 'video'],
+            ]
+        );
+        $mform->addHelpButton('media', 'media', 'mod_wall');
 
         $mform->addElement(
             'advcheckbox',
